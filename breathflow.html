@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Breath Flow — Cosmic Breathing Practices</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cinzel:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #02030a;
+      --accent1:   #7c6fff;
+      --accent2:   #c084fc;
+      --accent3:   #38bdf8;
+      --gold:      #f0c060;
+      --text:      #e2e8f0;
+      --muted:     #94a3b8;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Space Canvas ── */
+    #spaceCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Layout ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.8rem;
+    }
+
+    /* ── Header ── */
+    header { text-align: center; }
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      letter-spacing: .08em;
+      background: linear-gradient(135deg, #7c6fff, #c084fc, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: none;
+      filter: drop-shadow(0 0 18px rgba(124,111,255,.4));
+    }
+    header .tagline {
+      margin-top: .6rem;
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 300;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .stars-decoration {
+      display: flex;
+      justify-content: center;
+      gap: .4rem;
+      margin-top: .5rem;
+      font-size: .7rem;
+      color: var(--gold);
+      letter-spacing: .3em;
+      opacity: .7;
+    }
+
+    /* ── Technique Selector ── */
+    .section-label {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: -.8rem;
+    }
+
+    .techniques {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .65rem;
+      justify-content: center;
+    }
+    .tech-btn {
+      padding: .5rem 1.15rem;
+      border-radius: 999px;
+      border: 1px solid rgba(124,111,255,.3);
+      background: rgba(124,111,255,.06);
+      color: var(--muted);
+      font-size: .8rem;
+      cursor: pointer;
+      transition: all .25s;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+    }
+    .tech-btn:hover {
+      border-color: var(--accent1);
+      color: var(--text);
+      background: rgba(124,111,255,.12);
+    }
+    .tech-btn.active {
+      background: linear-gradient(135deg, rgba(124,111,255,.5), rgba(192,132,252,.45));
+      border-color: rgba(192,132,252,.6);
+      color: #fff;
+      box-shadow: 0 0 18px rgba(124,111,255,.4), inset 0 1px 0 rgba(255,255,255,.15);
+    }
+
+    /* ── Cosmic Orb Stage ── */
+    .breath-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.6rem;
+      padding: 2rem 0;
+    }
+
+    .orb-wrap {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Arc progress */
+    #progressSvg {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      transform: rotate(-90deg);
+      pointer-events: none;
+    }
+    #progressArc {
+      fill: none;
+      stroke: url(#arcGrad);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 4px rgba(124,111,255,.8));
+    }
+    #progressTrack {
+      fill: none;
+      stroke: rgba(255,255,255,.06);
+      stroke-width: 2.5;
+    }
+
+    /* Phase display */
+    .phase-label {
+      font-family: 'Cinzel', serif;
+      font-size: 1.55rem;
+      color: var(--text);
+      letter-spacing: .1em;
+      min-height: 2rem;
+      text-align: center;
+      text-shadow: 0 0 20px rgba(124,111,255,.6);
+    }
+    .phase-count {
+      font-size: 3.8rem;
+      font-weight: 300;
+      font-family: 'Cinzel', serif;
+      background: linear-gradient(135deg, #7c6fff, #c084fc, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      min-height: 4.8rem;
+      line-height: 1;
+      text-align: center;
+      filter: drop-shadow(0 0 12px rgba(124,111,255,.5));
+    }
+
+    /* Cycle dots */
+    .steps-row { display: flex; gap: .45rem; align-items: center; }
+    .step-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.08);
+      transition: all .3s;
+    }
+    .step-dot.done {
+      background: rgba(124,111,255,.5);
+      border-color: var(--accent1);
+      box-shadow: 0 0 6px rgba(124,111,255,.6);
+    }
+    .step-dot.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+      transform: scale(1.5);
+    }
+
+    /* ── Stats Panel ── */
+    .stats-panel {
+      display: flex;
+      gap: 0;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(124,111,255,.18);
+      border-radius: 18px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+    .stat-item {
+      padding: 1rem 2rem;
+      text-align: center;
+      border-right: 1px solid rgba(124,111,255,.12);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-label {
+      font-size: .65rem;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--muted);
+    }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: .2rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Controls ── */
+    .controls { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      padding: .9rem 2.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(124,111,255,.5);
+      background: linear-gradient(135deg, rgba(124,111,255,.7), rgba(192,132,252,.6));
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .06em;
+      font-family: 'Cinzel', serif;
+      box-shadow: 0 4px 30px rgba(124,111,255,.4), inset 0 1px 0 rgba(255,255,255,.2);
+      transition: transform .15s, box-shadow .15s;
+      backdrop-filter: blur(4px);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(124,111,255,.55), inset 0 1px 0 rgba(255,255,255,.2);
+    }
+    .btn-secondary {
+      padding: .9rem 2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all .2s;
+      backdrop-filter: blur(4px);
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,.25); color: var(--text); }
+
+    /* ── Info Card ── */
+    .info-card {
+      background: rgba(124,111,255,.05);
+      border: 1px solid rgba(124,111,255,.2);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      max-width: 600px;
+      width: 100%;
+      backdrop-filter: blur(8px);
+    }
+    .info-card .card-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: .9rem;
+    }
+    .info-icon { font-size: 1.6rem; }
+    .info-card h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent2);
+      letter-spacing: .05em;
+    }
+    .info-card .origin {
+      font-size: .72rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin-top: .1rem;
+    }
+    .info-card p {
+      font-size: .875rem;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+    .info-card .benefits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin-top: .9rem;
+    }
+    .benefit-tag {
+      padding: .25rem .75rem;
+      border-radius: 999px;
+      background: rgba(124,111,255,.1);
+      border: 1px solid rgba(124,111,255,.25);
+      font-size: .72rem;
+      color: var(--accent1);
+      letter-spacing: .04em;
+    }
+
+    /* ── Completed Banner ── */
+    #completedBanner {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(2,3,10,.9);
+      backdrop-filter: blur(16px);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.5rem;
+      text-align: center;
+      padding: 2rem;
+    }
+    #completedBanner.show { display: flex; }
+    .completed-orb {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #c084fc, #7c6fff 50%, #0c0a2e);
+      box-shadow: 0 0 40px rgba(124,111,255,.7), 0 0 80px rgba(124,111,255,.3);
+
+      margin-bottom: .5rem;
+    }
+    #completedBanner h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #7c6fff, #c084fc, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: .06em;
+    }
+    #completedBanner p { color: var(--muted); font-size: .95rem; }
+
+    @media (max-width: 540px) {
+      .stat-item { padding: .8rem 1.2rem; }
+      .stat-value { font-size: 1.3rem; }
+      .orb-wrap { width: 240px; height: 240px; }
+      #cosmicOrb { width: 110px; height: 110px; }
+    }
+
+    /* ── qub1t.v Signature ── */
+    .qub1t-sig {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      margin-top: .85rem;
+      padding: .3rem .9rem .3rem .75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(124,111,255,.25);
+      background: rgba(124,111,255,.07);
+      backdrop-filter: blur(6px);
+      cursor: default;
+      transition: border-color .3s, background .3s;
+      text-decoration: none;
+    }
+    .qub1t-sig:hover {
+      border-color: rgba(192,132,252,.5);
+      background: rgba(124,111,255,.14);
+    }
+    .qub1t-sig .by {
+      font-size: .65rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 400;
+    }
+    .qub1t-sig .name {
+      font-family: 'Courier New', monospace;
+      font-size: .82rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      background: linear-gradient(135deg, #7c6fff, #c084fc, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 6px rgba(124,111,255,.5));
+    }
+    .qub1t-sig .dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--accent2);
+      box-shadow: 0 0 5px var(--accent2);
+      animation: sigPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes sigPulse {
+      0%,100% { opacity: .5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.4); }
+    }
+
+    /* ── Donation Section ── */
+    .donation-section {
+      width: 100%;
+      max-width: 600px;
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(124,111,255,.22);
+      border-radius: 24px;
+      padding: 2rem 2rem 1.75rem;
+      backdrop-filter: blur(10px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .donation-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 0%,   rgba(124,111,255,.07) 0%, transparent 55%),
+        radial-gradient(circle at 80% 100%,  rgba(56,189,248,.05)  0%, transparent 55%);
+      pointer-events: none;
+    }
+    .donation-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      margin-bottom: .5rem;
+    }
+    .donation-star { font-size: 1.1rem; animation: sigPulse 3s ease-in-out infinite; }
+    .donation-section h4 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      letter-spacing: .1em;
+      background: linear-gradient(135deg, #7c6fff, #c084fc, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 8px rgba(124,111,255,.4));
+    }
+    .donation-desc {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 1.5rem;
+    }
+
+    /* PayPal button */
+    .btn-paypal {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .8rem 2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(0,157,224,.45);
+      background: linear-gradient(135deg, rgba(0,112,186,.55), rgba(0,157,224,.45));
+      color: #fff;
+      font-size: .9rem;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: .04em;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(0,157,224,.3), inset 0 1px 0 rgba(255,255,255,.15);
+      transition: transform .15s, box-shadow .15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-paypal:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,157,224,.45), inset 0 1px 0 rgba(255,255,255,.15);
+    }
+    .paypal-logo {
+      font-size: 1rem;
+      font-style: italic;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    /* Divider */
+    .donation-divider {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin: 1.25rem 0;
+      color: rgba(255,255,255,.12);
+      font-size: .7rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    .donation-divider::before,
+    .donation-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,111,255,.2), transparent);
+    }
+    .donation-divider span { color: rgba(255,255,255,.2); white-space: nowrap; }
+
+    /* EVM wallet */
+    .wallet-block {
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(124,111,255,.18);
+      border-radius: 14px;
+      padding: .9rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .wallet-block:hover { border-color: rgba(124,111,255,.45); background: rgba(124,111,255,.06); }
+    .wallet-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .wallet-info { flex: 1; min-width: 0; }
+    .wallet-label {
+      font-size: .65rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--accent2);
+      margin-bottom: .2rem;
+    }
+    .wallet-addr {
+      font-family: 'Courier New', monospace;
+      font-size: .78rem;
+      color: var(--text);
+      word-break: break-all;
+      line-height: 1.4;
+    }
+    .copy-btn {
+      flex-shrink: 0;
+      padding: .35rem .75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(124,111,255,.3);
+      background: rgba(124,111,255,.1);
+      color: var(--accent1);
+      font-size: .72rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { background: rgba(124,111,255,.22); border-color: var(--accent1); }
+    .copy-btn.copied { color: #4ade80; border-color: #4ade80; background: rgba(74,222,128,.1); }
+
+    /* Thank you note */
+    .thank-you {
+      margin-top: 1.1rem;
+      font-size: .75rem;
+      color: rgba(255,255,255,.2);
+      letter-spacing: .06em;
+    }
+    .thank-you .heart { color: rgba(192,132,252,.5); animation: sigPulse 2s ease-in-out infinite; display: inline-block; }
+
+
+
+    to   { transform: translateX(calc(-88px - 268px)); }
+    }
+
+
+    /* ── Three.js Earth ── */
+    #earthOrb {
+      width: 134px; height: 134px;
+      border-radius: 50%;
+      overflow: hidden;
+      position: relative;
+      z-index: 5;
+      isolation: isolate;
+    }
+    #earthOrb canvas {
+      display: block;
+      border-radius: 50%;
+    }
+
+
+    /* ── OrbWrap breathing scale ── */
+    .orb-wrap {
+      transition: transform .12s linear;
+      will-change: transform;
+      transform-origin: center center;
+      flex-shrink: 0;
+    }
+    /* ── Moon Orbit ── */
+
+    .moon-orbit-wrap {
+      position: absolute;
+      width: 230px; height: 230px;
+      border-radius: 50%;
+      z-index: 7;
+      pointer-events: none;
+      animation: moonOrbit 12s linear infinite;
+    }
+    @keyframes moonOrbit { to { transform: rotate(360deg); } }
+
+    .moon-orbit-path {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px dashed rgba(200,210,255,.12);
+    }
+
+    .moon {
+      position: absolute;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      top: -13px; left: 50%;
+      transform: translateX(-50%);
+      background:
+        radial-gradient(circle at 38% 28%, rgba(255,255,255,.25) 0%, transparent 20%),
+        radial-gradient(circle at 65% 60%, rgba(140,140,140,.4) 0%, transparent 18%),
+        radial-gradient(circle at 30% 65%, rgba(120,120,120,.35) 0%, transparent 14%),
+        radial-gradient(circle at 70% 30%, rgba(100,100,100,.3)  0%, transparent 10%),
+        radial-gradient(circle at 50% 50%, #d0d4e0 0%, #9ea4b8 40%, #6a7090 70%, #3d4260 100%);
+      box-shadow:
+        0 0 8px rgba(180,190,220,.4),
+        0 0 16px rgba(150,160,200,.15),
+        inset -6px -3px 12px rgba(0,0,20,.6);
+    }
+
+    /* Orbit ring for progress arc — keep outermost */
+    .orbit-ring-outer {
+      position: absolute;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 1px solid rgba(124,111,255,.14);
+      pointer-events: none;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+</head>
+<body>
+
+<canvas id="spaceCanvas"></canvas>
+
+<div class="page">
+
+  <header>
+    <h1>✦ Breath Flow ✦</h1>
+    <div class="stars-decoration">· · · · · · · · · · · · ·</div>
+    <div style="display:flex;justify-content:center;margin-top:.2rem;">
+      <a class="qub1t-sig" href="https://www.instagram.com/qub1t.v?igsh=MXRrMXlpMzdmdzcwdg%3D%3D&utm_source=qr" target="_blank" rel="noopener">
+        <span class="dot"></span>
+        <span class="by">by</span>
+        <span class="name">qub1t.v</span>
+        <span class="ig-icon">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:rgba(192,132,252,.7);vertical-align:middle;">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+      </a>
+    </div>
+    <p class="tagline">Breathe with the cosmos · Expand your universe within</p>
+  </header>
+
+  <!-- Technique Selector -->
+  <div class="section-label">Choose Your Practice</div>
+  <div class="techniques" id="techButtons"></div>
+
+  <!-- Orb + Phase Visual -->
+  <div class="breath-stage">
+    <div class="orb-wrap" id="orbWrap">
+      <svg id="progressSvg" width="280" height="280" viewBox="0 0 280 280">
+        <defs>
+          <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#7c6fff"/>
+            <stop offset="50%"  stop-color="#c084fc"/>
+            <stop offset="100%" stop-color="#38bdf8"/>
+          </linearGradient>
+        </defs>
+        <circle id="progressTrack" cx="140" cy="140" r="136"/>
+        <circle id="progressArc"   cx="140" cy="140" r="136"/>
+      </svg>
+      <div class="orbit-ring-outer"></div>
+      <div class="moon-orbit-wrap">
+        <div class="moon-orbit-path"></div>
+        <div class="moon"></div>
+      </div>
+      <div id="earthOrb"></div>
+    </div>
+
+    <div class="phase-label" id="phaseLabel">Ready to Begin</div>
+    <div class="phase-count" id="phaseCount">·</div>
+    <div class="steps-row" id="stepsRow"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-panel">
+    <div class="stat-item">
+      <div class="stat-label">Session</div>
+      <div class="stat-value" id="sessionTime">00:00</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Cycles</div>
+      <div class="stat-value" id="cycleCount">0</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Breaths</div>
+      <div class="stat-value" id="breathCount">0</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn-primary"   id="startBtn" onclick="toggleSession()">Begin Journey</button>
+    <button class="btn-secondary" onclick="resetSession()">Reset</button>
+  </div>
+
+  <!-- Info Card -->
+  <div class="info-card" id="infoCard">
+    <div class="card-header">
+      <div class="info-icon" id="infoIcon"></div>
+      <div>
+        <h3 id="infoTitle"></h3>
+        <div class="origin" id="infoOrigin"></div>
+      </div>
+    </div>
+    <p id="infoDesc"></p>
+    <div class="benefits" id="infoBenefits"></div>
+  </div>
+
+
+  <!-- Donation Section -->
+  <div class="donation-section">
+    <div class="donation-header">
+      <span class="donation-star">✦</span>
+      <h4>Support the Journey</h4>
+      <span class="donation-star">✦</span>
+    </div>
+    <p class="donation-desc">
+      I'm a content creator, traveler &amp; AI technician exploring the world and making technology accessible for everyone!<br/>
+      If this tool brought you calm — consider fueling the next creation. 🌍<br/>
+      <span style="color:rgba(240,192,96,.75);font-style:italic;">Thank you for your support, Ayubowan!</span>
+    </p>
+
+    <a class="btn-paypal" href="https://www.paypal.com/donate/?business=KR9642L5ZHK6J&no_recurring=0&item_name=Content+creator%2C+traveler+%26+AI+technician.+I+explore+the+world+and+make+tech+accessible.+Support+my+journey%21+%F0%9F%8C%8D&currency_code=USD" target="_blank" rel="noopener">
+      Donate with PayPal
+    </a>
+
+    <div class="donation-divider"><span>or send crypto (any EVM compatible chain &amp; token)</span></div>
+
+    <div class="wallet-block" onclick="copyWallet(this)">
+      <div class="wallet-icon">⬡</div>
+      <div class="wallet-info">
+        <div class="wallet-label">EVM Wallet</div>
+        <div class="wallet-addr">0xD80e8A16d4EDCDE73D9234D1c0806304930B860A</div>
+      </div>
+      <button class="copy-btn" id="copyBtn">Copy</button>
+    </div>
+
+    <div class="thank-you">Every breath you take here is a gift back &nbsp;<span class="heart">♥</span></div>
+  </div>
+
+</div>
+
+<!-- Completed Banner -->
+<div id="completedBanner">
+  <div class="completed-orb"></div>
+  <h2>Session Complete</h2>
+  <p id="completedStats"></p>
+  <p style="color:#7c6fff;font-size:.85rem;margin-top:-.5rem;">The universe within you has expanded.</p>
+  <button class="btn-primary" onclick="closeCompleted()" style="margin-top:.5rem;">Return to Stars</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  TECHNIQUES
+// ═══════════════════════════════════════════════════════════════
+const TECHNIQUES = [
+  // ── Universal / Science-backed ──
+  {
+    id: "box",
+    name: "Box Breath",
+    icon: "◻",
+    origin: "Military · Neuroscience",
+    phases: [
+      { label: "Inhale",  seconds: 4, scale: 1.323 },
+      { label: "Hold",    seconds: 4, scale: 1.323 },
+      { label: "Exhale",  seconds: 4, scale: 1.0  },
+      { label: "Hold",    seconds: 4, scale: 1.0  }
+    ],
+    totalCycles: 6,
+    title: "Box Breathing (4-4-4-4)",
+    desc: "Used by U.S. Navy SEALs, surgeons, and emergency responders, box breathing resets the autonomic nervous system in minutes. Each equal phase — inhale, hold, exhale, hold — creates a symmetrical breath \"box\" that halts the fight-or-flight response by directly stimulating the vagus nerve. Research shows it lowers cortisol, reduces blood pressure, and sharpens prefrontal cortex activity within a single session. It is one of the most studied and universally applicable breathing protocols in performance psychology.",
+    benefits: ["Stress Relief", "Focus", "Blood Pressure", "Cortisol Reset", "Performance"]
+  },
+  {
+    id: "478",
+    name: "4-7-8",
+    icon: "☽",
+    origin: "Dr. Andrew Weil · Integrative Medicine",
+    phases: [
+      { label: "Inhale",  seconds: 4, scale: 1.323 },
+      { label: "Hold",    seconds: 7, scale: 1.323 },
+      { label: "Exhale",  seconds: 8, scale: 1.0  }
+    ],
+    totalCycles: 4,
+    title: "4-7-8 Relaxation Breath",
+    desc: "Developed by Dr. Andrew Weil and rooted in ancient pranayama, this technique is nicknamed \"the natural tranquilizer for the nervous system.\" The 7-second breath retention floods the lungs with oxygen, slightly raises CO₂, and triggers a deep parasympathetic response. The prolonged 8-second exhale activates the body\'s natural sedation system by stimulating the vagus nerve and reducing heart rate. Clinical studies show consistent practice can reduce sleep onset time from 20+ minutes to under 5 minutes and blunt anxiety attacks mid-episode.",
+    benefits: ["Deep Sleep", "Anxiety", "Panic Relief", "Relaxation", "Vagal Tone"]
+  },
+  {
+    id: "coherent",
+    name: "Coherent",
+    icon: "∿",
+    origin: "HeartMath Institute · Cardiology",
+    phases: [
+      { label: "Inhale",  seconds: 5, scale: 1.285 },
+      { label: "Exhale",  seconds: 5, scale: 1.0  }
+    ],
+    totalCycles: 10,
+    title: "Coherent Breathing (5-5)",
+    desc: "Breathing at exactly 5 breaths per minute (5s inhale + 5s exhale) synchronizes the respiratory system with the heart\'s natural Mayer wave rhythm at 0.1 Hz — a state known as \"cardiac coherence\" or \"resonance frequency breathing.\" This synchronization maximizes Heart Rate Variability (HRV), the key biomarker of resilience, longevity, and stress recovery. Research by Stephen Elliott and the HeartMath Institute shows 20 minutes of coherent breathing daily reduces depression by up to 50%, lowers blood pressure, and rebuilds emotional regulation circuits in the prefrontal cortex.",
+    benefits: ["HRV Boost", "Depression", "Blood Pressure", "Resilience", "Longevity"]
+  },
+  {
+    id: "wim",
+    name: "Wim Hof",
+    icon: "❄",
+    origin: "Wim Hof · Modern Breathwork",
+    phases: [
+      { label: "Inhale",    seconds: 2, scale: 1.323 },
+      { label: "Exhale",    seconds: 2, scale: 1.05 },
+      { label: "Inhale",    seconds: 2, scale: 1.323 },
+      { label: "Exhale",    seconds: 2, scale: 1.05 },
+      { label: "Inhale",    seconds: 2, scale: 1.323 },
+      { label: "Exhale",    seconds: 2, scale: 1.05 },
+      { label: "Inhale",    seconds: 2, scale: 1.323 },
+      { label: "Exhale",    seconds: 2, scale: 1.05 },
+      { label: "Inhale",    seconds: 2, scale: 1.323 },
+      { label: "Exhale",    seconds: 2, scale: 1.05 },
+      { label: "Hold Out",  seconds: 20, scale: 1.0 },
+      { label: "Recovery",  seconds: 15, scale: 1.266  }
+    ],
+    totalCycles: 3,
+    title: "Wim Hof Method",
+    desc: "Developed by Dutch extreme athlete Wim Hof (\"The Iceman\"), this technique uses controlled hyperventilation followed by a breath hold to produce measurable physiological shifts. The rapid breathing cycle raises blood oxygen to 100% while drastically dropping CO₂ — creating alkalosis that triggers a massive adrenaline release from the adrenal glands. A landmark 2014 Radboud University study proved practitioners could voluntarily influence their immune response, suppressing E. coli endotoxin reactions. Long-term practice improves cold tolerance, boosts energy, and is used by athletes for performance enhancement and rapid recovery.",
+    benefits: ["Immune Boost", "Adrenaline", "Energy", "Cold Resistance", "Alkalinity"]
+  },
+  // ── Yoga Pranayama ──
+  {
+    id: "nadi",
+    name: "Nadi Shodhana",
+    icon: "☯",
+    origin: "Hatha Yoga · Pranayama",
+    phases: [
+      { label: "Inhale Left",  seconds: 4, scale: 1.304  },
+      { label: "Hold",         seconds: 4, scale: 1.304  },
+      { label: "Exhale Right", seconds: 8, scale: 1.0  },
+      { label: "Inhale Right", seconds: 4, scale: 1.304  },
+      { label: "Hold",         seconds: 4, scale: 1.304  },
+      { label: "Exhale Left",  seconds: 8, scale: 1.0  }
+    ],
+    totalCycles: 8,
+    title: "Nadi Shodhana — Alternate Nostril",
+    desc: "Nadi Shodhana (\"channel purification\") is the foundational pranayama of Hatha Yoga, described in the Hatha Yoga Pradipika (15th century). The practice alternates breath between the left nostril (Ida nadi — lunar, cooling, parasympathetic) and right nostril (Pingala nadi — solar, heating, sympathetic), systematically balancing both hemispheres of the brain. EEG studies confirm it synchronizes left/right brain activity within minutes. It is traditionally practiced before meditation to clear the 72,000 nadis (energy channels) and is considered by yogis to be the most powerful technique for achieving Sushumna awakening — the central energy channel aligned with the spine.",
+    benefits: ["Brain Balance", "Clarity", "Stress", "Pranayama", "Pre-Meditation"]
+  },
+  {
+    id: "ujjayi",
+    name: "Ujjayi",
+    icon: "🌊",
+    origin: "Ashtanga · Vinyasa Yoga",
+    phases: [
+      { label: "Inhale",  seconds: 5, scale: 1.304  },
+      { label: "Exhale",  seconds: 7, scale: 1.0  }
+    ],
+    totalCycles: 10,
+    title: "Ujjayi — Ocean Breath",
+    desc: "Ujjayi (\"victorious breath\") is the breath used throughout Ashtanga, Vinyasa, and Power Yoga flows — the gentle ocean-like sound created by partially constricting the glottis generates a built-in biofeedback loop that keeps the mind anchored in the present moment. The partial airway restriction creates slight positive pressure in the lungs, improving oxygen exchange efficiency and warming the body from the inside. Neurologically, the ocean-like auditory stimulus activates alpha brainwave states. Practiced continuously during asana, Ujjayi builds internal heat, massages the parasympathetic nervous system, and is described in the Hatha Yoga Pradipika as the breath that \"conquers aging and death.\"",
+    benefits: ["Yoga Flow", "Focus", "Internal Heat", "Alpha Waves", "Endurance"]
+  },
+  {
+    id: "kapalabhati",
+    name: "Kapalabhati",
+    icon: "☀",
+    origin: "Kundalini · Kriya Yoga",
+    phases: [
+      { label: "Exhale!", seconds: 1, scale: 1.0  },
+      { label: "Passive", seconds: 1, scale: 1.228  },
+      { label: "Exhale!", seconds: 1, scale: 1.0  },
+      { label: "Passive", seconds: 1, scale: 1.228  },
+      { label: "Exhale!", seconds: 1, scale: 1.0  },
+      { label: "Passive", seconds: 1, scale: 1.228  },
+      { label: "Exhale!", seconds: 1, scale: 1.0  },
+      { label: "Passive", seconds: 1, scale: 1.228  },
+      { label: "Exhale!", seconds: 1, scale: 1.0  },
+      { label: "Passive", seconds: 1, scale: 1.228  },
+      { label: "Hold",    seconds: 10, scale: 1.228 }
+    ],
+    totalCycles: 4,
+    title: "Kapalabhati — Skull Shining Breath",
+    desc: "Kapalabhati (\"skull shining\") is classified not as pranayama but as a Shat Kriya — a yogic purification technique. The forceful, rhythmic exhales (1–2 per second) act as an internal massage for all abdominal organs, activating the liver, spleen, pancreas, and small intestine. The passive inhales passively flood the lungs. The CO₂ purge creates a natural high — meditators report tingling, energy rushes, and expanded awareness within 2 minutes. In Kundalini Yoga this is called \"Breath of Fire\" and is used to awaken Kundalini energy at the base of the spine. Modern studies confirm it reduces carbon dioxide, increases metabolic rate, and activates the brain\'s reticular activating system — improving alertness dramatically.",
+    benefits: ["Energy", "Alertness", "Detox", "Metabolism", "Kundalini", "Abdominal Tone"]
+  },
+  {
+    id: "bhramari",
+    name: "Bhramari",
+    icon: "𝄞",
+    origin: "Classical Yoga · Tantric Practice",
+    phases: [
+      { label: "Inhale Deep",  seconds: 4, scale: 1.304 },
+      { label: "Hum (Exhale)", seconds: 8, scale: 1.0 }
+    ],
+    totalCycles: 8,
+    title: "Bhramari — Humming Bee Breath",
+    desc: "Bhramari (named after the Indian black bee) involves humming on the exhale, which produces vibrations at approximately 130–160 Hz internally. This is not merely relaxing — the vibration directly stimulates the vagus nerve through the laryngeal branch, triggering a powerful parasympathetic response that no other breathing technique achieves as rapidly. Research by Dr. Herbert Benson shows humming increases nitric oxide (NO) production in the nasal sinuses by up to 15-fold — NO is a vasodilator that opens airways, lowers blood pressure, and has powerful antiviral properties. In Tantric tradition, Bhramari is used to enter Pratyahara (withdrawal of senses) as the inner sound drowns out external perception and prepares the practitioner for deep meditation.",
+    benefits: ["Vagal Tone", "Nitric Oxide", "Sinuses", "Deep Calm", "Meditation", "Tinnitus"]
+  },
+  {
+    id: "sama",
+    name: "Sama Vritti",
+    icon: "⬡",
+    origin: "Classical Yoga · Patanjali",
+    phases: [
+      { label: "Inhale",  seconds: 6, scale: 1.304 },
+      { label: "Exhale",  seconds: 6, scale: 1.0 }
+    ],
+    totalCycles: 8,
+    title: "Sama Vritti — Equal Breath",
+    desc: "Sama Vritti (\"equal fluctuation\") is one of the simplest yet most profound pranayamas, mentioned in Patanjali\'s Yoga Sutras as a means of achieving Chitta Vritti Nirodha — the cessation of mental fluctuations. Equal duration of inhale and exhale creates perfect symmetry in the respiratory cycle, which mathematically creates perfect sine-wave oscillations in thoracic pressure, blood pressure, and HRV. This rhythmic symmetry entrains all physiological oscillators to the same frequency — a state of system-wide coherence. Unlike more stimulating techniques, Sama Vritti can be practiced at any time, including mid-activity, making it the ideal \"everyday\" pranayama for sustained equanimity throughout daily life.",
+    benefits: ["Equanimity", "Concentration", "Daily Practice", "Meditation", "Balance"]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let currentTech = TECHNIQUES[0];
+let running = false;
+let phaseIndex = 0;
+let phaseTickLeft = 0;
+let cyclesDone = 0;
+let breathsDone = 0;
+let sessionSeconds = 0;
+let sessionInterval = null;
+let animFrame = null;
+let lastTimestamp = null;
+let accumulatedMs = 0;
+
+const ARC_R = 136;
+const ARC_CIRC = 2 * Math.PI * ARC_R;
+
+// ── DOM refs ──
+const cosmicOrb  = document.getElementById("orbWrap");
+const phaseLabel = document.getElementById("phaseLabel");
+const phaseCount = document.getElementById("phaseCount");
+const startBtn   = document.getElementById("startBtn");
+const cycleEl    = document.getElementById("cycleCount");
+const breathEl   = document.getElementById("breathCount");
+const sessionEl  = document.getElementById("sessionTime");
+const progressArc = document.getElementById("progressArc");
+const stepsRow   = document.getElementById("stepsRow");
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+function init() {
+  buildTechButtons();
+  selectTechnique(TECHNIQUES[0]);
+  initSpaceCanvas();
+  if (typeof THREE !== 'undefined') initThreeEarth();
+  progressArc.style.strokeDasharray  = ARC_CIRC;
+  progressArc.style.strokeDashoffset = ARC_CIRC;
+}
+
+function buildTechButtons() {
+  const wrap = document.getElementById("techButtons");
+  wrap.innerHTML = "";
+  TECHNIQUES.forEach(t => {
+    const b = document.createElement("button");
+    b.className = "tech-btn" + (t.id === currentTech.id ? " active" : "");
+    b.textContent = t.name;
+    b.onclick = () => { if (!running) selectTechnique(t); };
+    wrap.appendChild(b);
+  });
+}
+
+function selectTechnique(tech) {
+  currentTech = tech;
+  buildTechButtons();
+  buildStepDots();
+  phaseLabel.textContent = "Ready to Begin";
+  phaseCount.textContent = "·";
+  cosmicOrb.style.transform = "scale(1)";
+  document.getElementById("infoIcon").textContent    = tech.icon;
+  document.getElementById("infoTitle").textContent   = tech.title;
+  document.getElementById("infoOrigin").textContent  = tech.origin;
+  document.getElementById("infoDesc").textContent    = tech.desc;
+  const bWrap = document.getElementById("infoBenefits");
+  bWrap.innerHTML = "";
+  tech.benefits.forEach(b => {
+    const tag = document.createElement("span");
+    tag.className = "benefit-tag";
+    tag.textContent = b;
+    bWrap.appendChild(tag);
+  });
+  progressArc.style.strokeDashoffset = ARC_CIRC;
+  resetSession(false);
+}
+
+function buildStepDots() {
+  stepsRow.innerHTML = "";
+  for (let i = 0; i < currentTech.totalCycles; i++) {
+    const d = document.createElement("div");
+    d.className = "step-dot";
+    d.id = "dot-" + i;
+    stepsRow.appendChild(d);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SESSION
+// ═══════════════════════════════════════════════════════════════
+function toggleSession() {
+  if (!running) startSession(); else pauseSession();
+}
+
+function startSession() {
+  running = true;
+  startBtn.textContent = "Pause";
+  if (!sessionInterval) {
+    sessionInterval = setInterval(() => {
+      sessionSeconds++;
+      const m = String(Math.floor(sessionSeconds / 60)).padStart(2, "0");
+      const s = String(sessionSeconds % 60).padStart(2, "0");
+      sessionEl.textContent = m + ":" + s;
+    }, 1000);
+  }
+  lastTimestamp = null;
+  accumulatedMs = 0;
+  if (phaseTickLeft === 0)
+    phaseTickLeft = currentTech.phases[phaseIndex].seconds * 10;
+  animFrame = requestAnimationFrame(tick);
+}
+
+function pauseSession() {
+  running = false;
+  startBtn.textContent = "Resume";
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+}
+
+function resetSession(resetTimer = true) {
+  pauseSession();
+  startBtn.textContent = "Begin Journey";
+  phaseIndex = 0; phaseTickLeft = 0;
+  cyclesDone = 0; breathsDone = 0;
+  if (resetTimer) {
+    sessionSeconds = 0;
+    clearInterval(sessionInterval); sessionInterval = null;
+    sessionEl.textContent = "00:00";
+  }
+  cycleEl.textContent  = "0";
+  breathEl.textContent = "0";
+  phaseLabel.textContent = "Ready to Begin";
+  phaseCount.textContent = "·";
+  cosmicOrb.style.transform = "scale(1)";
+  progressArc.style.strokeDashoffset = ARC_CIRC;
+  buildStepDots();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ANIMATION TICK
+// ═══════════════════════════════════════════════════════════════
+function tick(timestamp) {
+  if (!running) return;
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  accumulatedMs += timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+  while (accumulatedMs >= 100) { accumulatedMs -= 100; stepTenth(); }
+  animFrame = requestAnimationFrame(tick);
+}
+
+function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+function stepTenth() {
+  if (!running) return;
+  const phase = currentTech.phases[phaseIndex];
+  const totalTenths = phase.seconds * 10;
+  const progress = 1 - (phaseTickLeft / totalTenths);
+
+  const prevIdx = phaseIndex === 0 ? currentTech.phases.length - 1 : phaseIndex - 1;
+  const prevScale = currentTech.phases[prevIdx].scale;
+  const scale = prevScale + (phase.scale - prevScale) * easeInOut(progress);
+  cosmicOrb.style.transform = `scale(${scale})`;
+
+  const cycleProgress = (phaseIndex + progress) / currentTech.phases.length;
+  progressArc.style.strokeDashoffset = ARC_CIRC * (1 - cycleProgress);
+
+  // active dot
+  const activeDot = document.getElementById("dot-" + cyclesDone);
+  if (activeDot) activeDot.classList.add("active");
+
+  phaseTickLeft--;
+  const secs = Math.ceil(phaseTickLeft / 10);
+  phaseLabel.textContent = phase.label;
+  phaseCount.textContent = secs > 0 ? secs : "";
+
+  if (phaseTickLeft <= 0) {
+    const lbl = phase.label.toLowerCase();
+    if (lbl.includes("exhale") || lbl.includes("recovery") || lbl.includes("hold out")) {
+      breathsDone++;
+      breathEl.textContent = breathsDone;
+    }
+    phaseIndex++;
+    if (phaseIndex >= currentTech.phases.length) {
+      phaseIndex = 0;
+      const dot = document.getElementById("dot-" + cyclesDone);
+      if (dot) { dot.classList.remove("active"); dot.classList.add("done"); }
+      cyclesDone++;
+      cycleEl.textContent = cyclesDone;
+      if (cyclesDone >= currentTech.totalCycles) { finishSession(); return; }
+    }
+    phaseTickLeft = currentTech.phases[phaseIndex].seconds * 10;
+  }
+}
+
+function finishSession() {
+  running = false; cancelAnimationFrame(animFrame);
+  clearInterval(sessionInterval); sessionInterval = null;
+  startBtn.textContent = "Begin Journey";
+  const m = String(Math.floor(sessionSeconds/60)).padStart(2,"0");
+  const s = String(sessionSeconds%60).padStart(2,"0");
+  document.getElementById("completedStats").textContent =
+    `${currentTech.name}  ·  ${cyclesDone} cycles  ·  ${breathsDone} breaths  ·  ${m}:${s}`;
+  document.getElementById("completedBanner").classList.add("show");
+}
+
+function closeCompleted() {
+  document.getElementById("completedBanner").classList.remove("show");
+  resetSession();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SPACE CANVAS
+// ═══════════════════════════════════════════════════════════════
+function initSpaceCanvas() {
+  const canvas = document.getElementById("spaceCanvas");
+  const ctx = canvas.getContext("2d");
+  let W, H;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    drawStaticLayer();
+  }
+
+  // ── Static starfield + Milky Way (offscreen buffer) ──
+  let staticBuf;
+  function drawStaticLayer() {
+    staticBuf = document.createElement("canvas");
+    staticBuf.width = W; staticBuf.height = H;
+    const sc = staticBuf.getContext("2d");
+
+    // Space gradient background
+    const bg = sc.createRadialGradient(W*.5,H*.4,0, W*.5,H*.5,Math.max(W,H)*.8);
+    bg.addColorStop(0,   "#0d0921");
+    bg.addColorStop(.35, "#060414");
+    bg.addColorStop(1,   "#02030a");
+    sc.fillStyle = bg; sc.fillRect(0,0,W,H);
+
+    // Milky Way band
+    const bandAngle = .25;
+    for (let i = 0; i < 3; i++) {
+      const grd = sc.createLinearGradient(0, H*.2 + i*30, W, H*.85 + i*20);
+      grd.addColorStop(0,    "transparent");
+      grd.addColorStop(.2,   `rgba(${60+i*10},${30+i*8},${110+i*20},${.06+i*.02})`);
+      grd.addColorStop(.5,   `rgba(${80+i*15},${40+i*10},${150+i*20},${.1+i*.03})`);
+      grd.addColorStop(.8,   `rgba(${60+i*8}, ${30+i*6}, ${100+i*15},${.05+i*.01})`);
+      grd.addColorStop(1,    "transparent");
+      sc.fillStyle = grd;
+      sc.save();
+      sc.translate(W/2, H/2);
+      sc.rotate(bandAngle);
+      sc.fillRect(-W, -H, W*2, H*2);
+      sc.restore();
+    }
+
+    // Nebula clouds
+    const nebulae = [
+      { x:.15, y:.25, r:.22, c:"rgba(124,111,255," },
+      { x:.82, y:.15, r:.18, c:"rgba(56,189,248,"  },
+      { x:.6,  y:.7,  r:.25, c:"rgba(192,132,252," },
+      { x:.3,  y:.6,  r:.15, c:"rgba(99,53,196,"   },
+      { x:.9,  y:.8,  r:.2,  c:"rgba(56,189,248,"  }
+    ];
+    nebulae.forEach(n => {
+      for (let ring = 4; ring > 0; ring--) {
+        const g = sc.createRadialGradient(n.x*W, n.y*H, 0, n.x*W, n.y*H, n.r*W*ring*.4);
+        g.addColorStop(0,   n.c + (.04/ring) + ")");
+        g.addColorStop(.5,  n.c + (.02/ring) + ")");
+        g.addColorStop(1,   "transparent");
+        sc.fillStyle = g;
+        sc.fillRect(0,0,W,H);
+      }
+    });
+
+    // Stars — 3 size groups
+    for (let i = 0; i < 900; i++) {
+      const x = Math.random()*W, y = Math.random()*H;
+      const r = Math.random()*Math.random()*2 + .2;
+      const bright = Math.random();
+      let color;
+      if (bright > .97) color = `rgba(255,220,120,${.7+Math.random()*.3})`;      // gold
+      else if (bright > .93) color = `rgba(180,200,255,${.6+Math.random()*.3})`; // blue-white
+      else color = `rgba(220,220,255,${.15+Math.random()*.55})`;                 // dim white
+      sc.beginPath();
+      sc.arc(x, y, r, 0, Math.PI*2);
+      sc.fillStyle = color;
+      sc.fill();
+      // glow for bright stars
+      if (bright > .96) {
+        const sg = sc.createRadialGradient(x,y,0,x,y,r*6);
+        sg.addColorStop(0,   "rgba(255,220,120,.15)");
+        sg.addColorStop(1,   "transparent");
+        sc.fillStyle = sg; sc.beginPath();
+        sc.arc(x,y,r*6,0,Math.PI*2); sc.fill();
+      }
+    }
+
+    // Cross-sparkle on very bright stars
+    sc.strokeStyle = "rgba(255,240,200,.3)"; sc.lineWidth = .5;
+    for (let i = 0; i < 12; i++) {
+      const x = Math.random()*W, y = Math.random()*H, sz = Math.random()*5+3;
+      sc.beginPath(); sc.moveTo(x-sz,y); sc.lineTo(x+sz,y); sc.stroke();
+      sc.beginPath(); sc.moveTo(x,y-sz); sc.lineTo(x,y+sz); sc.stroke();
+    }
+  }
+
+  // ── Shooting stars ──
+  const shooters = [];
+  function spawnShooter() {
+    shooters.push({
+      x: Math.random()*W*.8, y: Math.random()*H*.4,
+      vx: 4+Math.random()*6, vy: 2+Math.random()*4,
+      len: 80+Math.random()*120, life: 1, alpha: .8
+    });
+  }
+  setInterval(spawnShooter, 4000 + Math.random()*5000);
+
+  // ── Twinkling stars ──
+  const twinklers = [];
+  for (let i = 0; i < 40; i++) {
+    twinklers.push({
+      x: Math.random()*W, y: Math.random()*H,
+      r: Math.random()*1.2+.4,
+      phase: Math.random()*Math.PI*2,
+      speed: .02+Math.random()*.04
+    });
+  }
+
+  // ── Animation loop ──
+  let t = 0;
+  function frame() {
+    requestAnimationFrame(frame);
+    if (!staticBuf) return;
+    ctx.drawImage(staticBuf, 0, 0);
+    t += .005;
+
+    // Twinkling
+    twinklers.forEach(tw => {
+      tw.phase += tw.speed;
+      const a = .3 + .7*(Math.sin(tw.phase)*.5+.5);
+      ctx.beginPath();
+      ctx.arc(tw.x, tw.y, tw.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(220,230,255,${a})`;
+      ctx.fill();
+    });
+
+    // Shooting stars
+    for (let i = shooters.length-1; i >= 0; i--) {
+      const s = shooters[i];
+      const g = ctx.createLinearGradient(s.x, s.y, s.x-s.len, s.y-s.len*.5);
+      g.addColorStop(0,   `rgba(255,255,255,${s.alpha})`);
+      g.addColorStop(.3,  `rgba(180,180,255,${s.alpha*.5})`);
+      g.addColorStop(1,   "transparent");
+      ctx.beginPath();
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 1.5;
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(s.x-s.len, s.y-s.len*.5);
+      ctx.stroke();
+      s.x += s.vx; s.y += s.vy; s.alpha -= .015;
+      if (s.alpha <= 0) shooters.splice(i,1);
+    }
+
+    // Gentle nebula breathe
+    const pulse = Math.sin(t)*.5+.5;
+    const grd = ctx.createRadialGradient(W*.5, H*.5, 0, W*.5, H*.5, W*.4);
+    grd.addColorStop(0,   `rgba(124,111,255,${.015+pulse*.01})`);
+    grd.addColorStop(1,   "transparent");
+    ctx.fillStyle = grd; ctx.fillRect(0,0,W,H);
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+  requestAnimationFrame(frame);
+}
+
+
+function copyWallet(el) {
+  navigator.clipboard.writeText('0xD80e8A16d4EDCDE73D9234D1c0806304930B860A').then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════
+//  THREE.JS EARTH
+// ═══════════════════════════════════════════════════════════════
+function initThreeEarth() {
+  const container = document.getElementById('earthOrb');
+  const W = 134, H = 134;
+  const PR = Math.min(window.devicePixelRatio, 2);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(PR);
+  renderer.shadowMap.enabled = false;
+  renderer.domElement.style.borderRadius = '50%';
+  container.appendChild(renderer.domElement);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+  camera.position.z = 2.6;
+
+  const loader = new THREE.TextureLoader();
+  const BASE = 'https://raw.githubusercontent.com/mrdoob/three.js/r134/examples/textures/planets/';
+
+  // Earth sphere
+  const earthGeo = new THREE.SphereGeometry(1, 64, 64);
+  const earthMat = new THREE.MeshPhongMaterial({
+    map:         loader.load(BASE + 'earth_atmos_2048.jpg'),
+    specularMap: loader.load(BASE + 'earth_specular_2048.jpg'),
+    specular:    new THREE.Color(0x2244aa),
+    shininess:   18
+  });
+  const earth = new THREE.Mesh(earthGeo, earthMat);
+  scene.add(earth);
+
+  // Cloud layer
+  const cloudMat = new THREE.MeshPhongMaterial({
+    map:         loader.load(BASE + 'earth_clouds_1024.png'),
+    transparent: true,
+    opacity:     0.82,
+    depthWrite:  false
+  });
+  const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.012, 64, 64), cloudMat);
+  scene.add(clouds);
+
+  // Atmosphere glow shell
+  const atmoMat = new THREE.MeshPhongMaterial({
+    color:       new THREE.Color(0x2288ff),
+    transparent: true,
+    opacity:     0.13,
+    side:        THREE.FrontSide,
+    depthWrite:  false
+  });
+  const atmo = new THREE.Mesh(new THREE.SphereGeometry(1.06, 48, 48), atmoMat);
+
+  // Lighting: sun from upper-left
+  const sun = new THREE.DirectionalLight(0xffeedd, 1.4);
+  sun.position.set(4, 2.5, 4);
+  scene.add(sun);
+  scene.add(new THREE.AmbientLight(0x112255, 0.45));
+
+  // Tilt axis like real Earth (~23°)
+  earth.rotation.z  = THREE.MathUtils.degToRad(23.4);
+  clouds.rotation.z = THREE.MathUtils.degToRad(23.4);
+
+  scene.add(earth);
+  scene.add(clouds);
+  scene.add(atmo);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    earth.rotation.y  += 0.00022;
+    clouds.rotation.y += 0.00028;
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
